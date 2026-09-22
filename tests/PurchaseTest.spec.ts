@@ -79,7 +79,8 @@ test.describe('purchase tests', () => {
         await checkoutPage.continueToOverview();
 
         await expect(page).toHaveURL(/checkout-step-two/);
-        await expect(page.locator('[data-test="inventory-item"]')).toContainText('Sauce Labs Backpack');
+        await expect(page.locator('[data-test="inventory-item"]'))
+            .toContainText('Sauce Labs Backpack');
 
         await checkoutPage.finishPurchase();
         await checkoutPage.verifyOrderConfirmation();
