@@ -1,20 +1,24 @@
 import { expect, Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class CartPage {
-    readonly page: Page;
-    readonly backpackItem: Locator;
-    readonly bikeLightItem: Locator;
+export class CartPage extends BasePage {
     readonly checkoutButton: Locator;
     readonly continueShoppingButton: Locator;
-    readonly backpackRemoveButton: Locator;
+    readonly backpackItem: Locator;
+    readonly bikeLightItem: Locator;
 
     constructor(page: Page) {
-        this.page = page;
-        this.backpackItem = page.locator('[data-test="inventory-item"]').filter({ hasText: 'Sauce Labs Backpack' });
-        this.bikeLightItem = page.locator('[data-test="inventory-item"]').filter({ hasText: 'Sauce Labs Bike Light' });
+        super(page);
         this.checkoutButton = page.locator('[data-test="checkout"]');
         this.continueShoppingButton = page.locator('[data-test="continue-shopping"]');
-        this.backpackRemoveButton = page.locator('[data-test="remove-sauce-labs-backpack"]');
+        this.backpackItem = page.locator('[data-test="inventory-item"]').filter({ hasText: 'Sauce Labs Backpack' });
+        this.bikeLightItem = page.locator('[data-test="inventory-item"]').filter({ hasText: 'Sauce Labs Bike Light' });
+    }
+
+    getProduct(productName: string): Locator {
+        return this.page
+            .locator('[data-test="inventory-item"]')
+            .filter({ hasText: productName });
     }
 
     async verifyBackpackIsInCart(): Promise<void> {
@@ -25,8 +29,24 @@ export class CartPage {
         await expect(this.bikeLightItem).toBeVisible();
     }
 
+    async verifyProductIsInCart(productName: string): Promise<void> {
+        await expect(this.getProduct(productName)).toBeVisible();
+    }
+
+    async verifyProductIsNotInCart(productName: string): Promise<void> {
+        await expect(this.getProduct(productName)).toHaveCount(0);
+    }
+
     async removeBackpack(): Promise<void> {
-        await this.backpackRemoveButton.click();
+        await this.page.locator('[data-test="remove-sauce-labs-backpack"]').click();
+    }
+
+    async removeBikeLight(): Promise<void> {
+        await this.page.locator('[data-test="remove-sauce-labs-bike-light"]').click();
+    }
+
+    async removeProduct(product: string): Promise<void> {
+        await this.page.locator(`[data-test="remove-${product}"]`).click();
     }
 
     async proceedToCheckout(): Promise<void> {
