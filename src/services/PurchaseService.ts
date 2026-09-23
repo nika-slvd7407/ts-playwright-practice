@@ -68,4 +68,30 @@ export class PurchaseService extends BaseService {
         await this.openCart();
         await this.cartPage.proceedToCheckout();
     }
+    
+    async purchaseAndReturnHome(username: string, products: string[], firstName: string, lastName: string, postalCode: string): Promise<void> {
+    await this.purchaseProducts(
+        username,
+        products,
+        firstName,
+        lastName,
+        postalCode
+    );
+
+    await this.checkoutPage.returnToProducts();
+}
+
+async addRemoveAndCheckout(username: string, products: string[], productToRemove: string, firstName: string, lastName: string, postalCode: string): Promise<void> {
+    await this.loginAs(username);
+    await this.addProductsToCart(products);
+    await this.openCart();
+    await this.removeProduct(productToRemove);
+    await this.checkout(firstName, lastName, postalCode);
+}
+
+async cancelCheckout(username: string, products: string[]): Promise<void> {
+    await this.startCheckout(username, products);
+    await this.checkoutPage.cancelButton.click();
+    await expect(this.page).toHaveURL(/cart/);
+}
 }
